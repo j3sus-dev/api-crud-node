@@ -1,0 +1,233 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Documentación"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:3000/api/v1"
+    }
+  ],
+  "paths": {
+    "/movies": {
+      "get": {
+        "summary": "Obtener todas las películas con paginación",
+        "description": "Devuelve una lista paginada de todas las películas disponibles. Puedes controlar el tamaño de la página y el número de página.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "El número de página que se desea obtener. Empieza en 1.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "El número de películas por página.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Una lista exitosa de películas.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Response"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error interno."
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear una nueva película",
+        "description": "Crea una nueva película con la información proporcionada.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Película creada exitosamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrada inválida."
+          },
+          "500": {
+            "description": "Error interno."
+          }
+        }
+      }
+    },
+    "/movies/{id}": {
+      "get": {
+        "summary": "Obtener una película por su identificador",
+        "description": "Devuelve una película específica usando su identificador.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "El identificador de la película a recuperar.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Una película específica.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Película no encontrada."
+          },
+          "500": {
+            "description": "Error interno."
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar una película",
+        "description": "Actualiza toda la información de una película existente usando su identificador.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "El identificador de la película a actualizar.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Request"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Película actualizada exitosamente.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Entrada inválida."
+          },
+          "404": {
+            "description": "Película no encontrada."
+          },
+          "500": {
+            "description": "Error interno."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar una película",
+        "description": "Elimina una película de la base de datos usando su identificador.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "El identificador de la película a eliminar.",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Película eliminada exitosamente."
+          },
+          "404": {
+            "description": "Película no encontrada."
+          },
+          "500": {
+            "description": "Error interno."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Request": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "El título de la película."
+          },
+          "description": {
+            "type": "string",
+            "description": "La descripción de la película."
+          }
+        },
+        "required": ["title", "description"]
+      },
+      "Response": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "El identificador de la película"
+          },
+          "title": {
+            "type": "string",
+            "description": "El título de la película."
+          },
+          "description": {
+            "type": "string",
+            "description": "La descripción de la película."
+          }
+        }
+      }
+    }
+  }
+}

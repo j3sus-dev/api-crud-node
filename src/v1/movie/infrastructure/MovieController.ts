@@ -103,7 +103,7 @@ export class MovieController {
     new DeleteMovie(this.repository)
       .run(Number(id))
       .then(() => {
-        return res.status(200).send()
+        return res.status(204).send()
       })
       .catch((err) => {
         if (err instanceof InvalidEntryError) {
