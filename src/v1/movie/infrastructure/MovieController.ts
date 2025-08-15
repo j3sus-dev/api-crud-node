@@ -17,8 +17,9 @@ export class MovieController {
 
     new GetAllMovies(this.repository)
       .run(Number(page), Number(limit))
-      .then((movies) => {
-        return res.status(200).json(movies.map((movie) => movie.toPrimitive()))
+      .then((_res) => {
+        const data = _res.data.map((movie) => movie.toPrimitive())
+        return res.status(200).json({ ..._res, data })
       })
       .catch((err) => {
         Log.error(err.message)

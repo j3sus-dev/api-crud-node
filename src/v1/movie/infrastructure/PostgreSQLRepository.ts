@@ -2,20 +2,31 @@ import { PostgreSQL } from '../../../common/PostgreSQL'
 import { Movie } from '../domain/Movie'
 import { MovieDescription } from '../domain/MovieDescription'
 import { MovieId } from '../domain/MovieId'
+import { MovieMeta } from '../domain/MovieMeta'
 import { MovieParams } from '../domain/MovieParams'
 import { MovieRepository } from '../domain/MovieRepository'
 import { MovieTitle } from '../domain/MovieTitle'
 
 export class PostgreSQLRepository implements MovieRepository {
-  public async getAllMovies(params: MovieParams): Promise<Movie[]> {
+  public async getAllMovies(
+    params: MovieParams
+  ): Promise<{ meta: MovieMeta; data: Movie[] }> {
     const connection = await PostgreSQL.connection()
     const result = await connection.query(
       'SELECT id, title, description FROM movies ORDER BY id LIMIT $1 OFFSET $2',
       [params.limit, (params.page - 1) * params.limit]
     )
+    const countResult = await connection.query('SELECT COUNT(*) FROM movies')
+    const totalMovies = parseInt(countResult.rows[0].count, 10)
     connection.release()
 
-    return result.rows.map(
+    const totalPages = Math.ceil(totalMovies / params.limit)
+    const hasNextPage = params.page < totalPages
+    const hasPrevPage = params.page > 1
+    const nextPage = hasNextPage ? params.page + 1 : null
+    const prevPage = hasPrevPage ? params.page - 1 : null
+
+    const movies = result.rows.map(
       (movie) =>
         new Movie(
           new MovieId(movie.id),
@@ -23,6 +34,19 @@ export class PostgreSQLRepository implements MovieRepository {
           new MovieDescription(movie.description)
         )
     )
+
+    const meta = new MovieMeta(
+      totalMovies,
+      totalPages,
+      params.page,
+      nextPage,
+      prevPage
+    )
+
+    return {
+      meta: meta,
+      data: movies,
+    }
   }
 
   public async getByMovieId(id: MovieId): Promise<Movie | null> {
